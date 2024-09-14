@@ -73,8 +73,10 @@ def main():
     
     # Instanciando o dashboard e criando a visualização
     dashboard = PollDashboard(poll_data)
-    dashboard.create_dashboard()
-    dashboard.export_dataframe("poll_data.csv")
+    dashboard.export_dataframe("poll_data.csv")  # Primeiro, exporta os dados para CSV
+    # Criando o dashboard com base no arquivo CSV
+    dashboard = PollDashboard(csv_file="poll_data.csv")
+    dashboard.create_dashboard()  # Depois, cria o dashboard com base no arquivo CSV
 
 if __name__ == "__main__":
     main()
