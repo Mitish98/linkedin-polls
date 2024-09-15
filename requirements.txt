@@ -1,4 +1,0 @@
-selenium==4.20.0
-streamlit==1.23.0
-pandas==2.0.0
-pillow==9.5.0
