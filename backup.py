@@ -1,29 +1,10 @@
 import pandas as pd
 import streamlit as st
-import sys
+import os
 
 class PollDashboard:
-    def __init__(self, poll_data=None, csv_file=None):
-        if poll_data:
-            self.poll_data = poll_data
-            self.poll_df = self.polls_to_dataframe()
-        elif csv_file:
-            self.poll_df = pd.read_csv(csv_file)
-        else:
-            raise ValueError("Deve ser fornecido poll_data ou csv_file.")
-
-    # Função para transformar os dados em um DataFrame
-    def polls_to_dataframe(self):
-        dataframes = []
-
-        for poll in self.poll_data:
-            options_df = pd.DataFrame(poll['Options'])
-            options_df['Title'] = poll['Title']
-            options_df['Link'] = poll['Link']  # Adiciona o link ao DataFrame
-            options_df['Total Votes'] = poll['Total Votes']  # Adiciona o total de votos ao DataFrame
-            dataframes.append(options_df)
-
-        return pd.concat(dataframes, ignore_index=True)
+    def __init__(self, poll_df):
+        self.poll_df = poll_df
 
     # Função para criar o dashboard usando Streamlit
     def create_dashboard(self):
@@ -37,29 +18,42 @@ class PollDashboard:
             # Exibir o total de votos
             st.write(f"Total de votos: {group['Total Votes'].iloc[0]}")
             
-            # Gráfico de pizza para cada enquete
-            st.dataframe(group[['Option', 'Percentage']])  # Exibe as opções e porcentagens como tabela
+            # Exibir as opções e porcentagens como tabela
+            st.dataframe(group[['Option', 'Percentage']])  
 
             # Gráfico de barra para as opções
             group['Percentage'] = group['Percentage'].str.replace('%', '').astype(float)
             st.bar_chart(data=group, x='Option', y='Percentage')
 
-    # Função para exportar o DataFrame
-    def export_dataframe(self, file_name="poll_data.csv"):
-        self.poll_df.to_csv(file_name, index=False)
-        st.success(f"Dados exportados para {file_name}")
-
-# Função principal para execução autônoma
 def main():
-    # Verifica se um arquivo CSV foi passado como argumento
-    if len(sys.argv) > 1:
-        csv_file = sys.argv[1]
+    st.title("Dashboard de Enquetes")
+
+    # Caminho para o arquivo CSV padrão
+    default_csv_path = 'poll_data.csv'
+
+    # Verifica se o arquivo CSV padrão existe
+    if os.path.exists(default_csv_path):
+        default_df = pd.read_csv(default_csv_path)
+        
+        
     else:
-        st.error("Por favor, forneça o caminho para o arquivo CSV como argumento.")
+        st.error("O arquivo CSV padrão não foi encontrado. Por favor, faça o upload de um arquivo CSV.")
+
+    # Upload do arquivo CSV
+    uploaded_file = st.file_uploader("Visualize os dados das minhas enquetes no LinkedIn ou faça o upload do seu próprio arquivo CSV para visualizar os gráficos com os dados das suas postagens de enquetes:", type="csv")
+
+    if uploaded_file is not None:
+        # Ler o CSV carregado
+        poll_df = pd.read_csv(uploaded_file)
+    elif os.path.exists(default_csv_path):
+        # Usar o arquivo CSV padrão se nenhum arquivo for carregado
+        poll_df = default_df
+    else:
+        st.error("Nenhum arquivo CSV foi carregado. Por favor, faça o upload de um arquivo CSV.")
         return
 
-    # Cria o dashboard
-    dashboard = PollDashboard(csv_file=csv_file)
+    # Criar e mostrar o dashboard
+    dashboard = PollDashboard(poll_df=poll_df)
     dashboard.create_dashboard()
 
 if __name__ == "__main__":
