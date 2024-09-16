@@ -13,10 +13,10 @@ class PollDashboard:
             st.header(title)
             
             # Exibir o link da postagem
-            st.markdown(f"[Ver postagem no LinkedIn]({group['Link'].dropna().iloc[0]})")
+            st.markdown(f"[View LinkedIn post]({group['Link'].dropna().iloc[0]})")
             
             # Exibir o total de votos
-            st.write(f"Total de votos: {group['Total Votes'].dropna().iloc[0]}")
+            st.write(f"Total votes: {group['Total Votes'].dropna().iloc[0]}")
             
             # Exibir as opções e porcentagens como tabela
             st.dataframe(group[['Option', 'Percentage']])  
